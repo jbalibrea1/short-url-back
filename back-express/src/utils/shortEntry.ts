@@ -1,4 +1,4 @@
-import { NewShortUrlEntry } from '../types/shortUrlTypes';
+import { NewShortUrlEntry } from '../interfaces/shortUrlTypes';
 
 const parseUrl = (url: unknown): string => {
   if (!url || typeof url !== 'string') {
