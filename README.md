@@ -16,7 +16,7 @@ This is a simple API for shortening URLs, demonstrating the implementation in bo
 
 [GO](back-go/README.md)
 
-[Express - Node.js](api-express/README.md)
+[Express - Node.js](back-express/README.md)
 
 ## Endpoints
 
