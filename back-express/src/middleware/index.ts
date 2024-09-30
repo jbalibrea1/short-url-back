@@ -1,3 +1,4 @@
+import { NextFunction, Response } from 'express';
 import logger from '../utils/logger';
 
 const requestLogger = (
@@ -16,12 +17,13 @@ const unknownEndpoint = (_request: any, response: any) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
-const errorHandler = (
+const errorMidHandler = (
   error: { name: string; message: any },
-  _request: any,
-  response: any,
-  next: (arg0: any) => void
+  _request: Request,
+  response: Response,
+  next: NextFunction
 ) => {
+  console.log('errorHandler error:', error);
   if (error.name === 'CastError') {
     return response.status(400).send({
       error: 'malformatted id',
@@ -30,23 +32,23 @@ const errorHandler = (
     return response.status(400).json({
       error: error.message,
     });
-  } else if (error.name === 'JsonWebTokenError') {
-    return response.status(401).json({
-      error: 'invalid token',
-    });
-  } else if (error.name === 'TokenExpiredError') {
-    return response.status(401).json({
-      error: 'token expired',
-    });
+  } else if (
+    error.name === 'MongoServerError' &&
+    error.message.includes('E11000 duplicate key error')
+  ) {
+    return response
+      .status(400)
+      .json({ error: 'expected `username` to be unique' });
   }
 
   logger.error(error.message);
 
   next(error);
+  return;
 };
 
 export default {
   requestLogger,
   unknownEndpoint,
-  errorHandler,
+  errorMidHandler,
 };
