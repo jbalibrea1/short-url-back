@@ -13,7 +13,7 @@ func NewShortUrlRoutes(sucController controllers.ShortUrlController) ShortUrlRou
 	return ShortUrlRouterController{sucController}
 }
 
-func (suc *ShortUrlRouterController) SetupRoutes(r *gin.Engine) {
+func (suc *ShortUrlRouterController) SetupRoutes(r *gin.RouterGroup) {
 	// El controlador esta encapsulado en el router
 	//* gin pasa el contexto automáticamente a los controladores
 	//* por lo que no es necesario pasarlo manualmente
