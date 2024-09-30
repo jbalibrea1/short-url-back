@@ -7,4 +7,4 @@ router.get('/', shortUrlController.getAllShortUrls);
 router.post('/', shortUrlController.addShortUrl);
 router.get('/:shortUrl', shortUrlController.getFullUrl);
 
-export default router;
+export { router };
