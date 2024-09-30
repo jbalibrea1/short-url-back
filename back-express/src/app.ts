@@ -1,10 +1,11 @@
-require('dotenv').config();
+import 'dotenv/config';
 import express from 'express';
 import connectDB from './config/db';
 import middleware from './middleware';
-import shortUrlRoutes from './routes/shortUrlRoutes';
+
+import cors from 'cors';
+import { router } from './routes';
 const app = express();
-const cors = require('cors');
 
 // Middlewares
 app.use(cors());
@@ -19,10 +20,10 @@ app.get('/ping', (_req, res) => {
   console.log('someone pinged here');
   res.send('pong');
 });
-app.use('/shorturl', shortUrlRoutes);
+app.use(router);
 
 // Middleware for handling unknown routes and errors
 app.use(middleware.unknownEndpoint);
-app.use(middleware.errorHandler);
+app.use(middleware.errorMidHandler);
 
 export default app;
