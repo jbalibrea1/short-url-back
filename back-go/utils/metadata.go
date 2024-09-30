@@ -50,19 +50,19 @@ func fetchMetadata(urlStr string) (*Metadata, error) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
-	resp, err := client.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch URL: %v", err)
 	}
-	defer resp.Body.Close()
+	defer res.Body.Close()
 
-	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	if res.StatusCode < 200 || res.StatusCode >= 400 {
+		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
 	}
 
-	finalURL := resp.Request.URL.String()
+	finalURL := res.Request.URL.String()
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %v", err)
 	}
@@ -90,6 +90,7 @@ func fetchMetadata(urlStr string) (*Metadata, error) {
 		}
 	})
 
+	// Si no se encuentra el favicon, intentar con la URL base
 	if faviconURL == "" {
 		parsedURL, err := url.Parse(finalURL)
 		if err == nil {
@@ -99,9 +100,11 @@ func fetchMetadata(urlStr string) (*Metadata, error) {
 		}
 	}
 
+	// Si el favicon no es una URL absoluta, resolverla
 	if !strings.HasPrefix(faviconURL, "http") {
-		baseURL, _ := url.Parse(finalURL)
-		faviconURL = baseURL.ResolveReference(&url.URL{Path: path.Join(baseURL.Path, faviconURL)}).String()
+		parsedURL, _ := url.Parse(finalURL)
+		finalURL = parsedURL.ResolveReference(&url.URL{Path: path.Join(parsedURL.Path)}).String()
+		faviconURL = finalURL + faviconURL
 	}
 	meta.Favicon = faviconURL
 
