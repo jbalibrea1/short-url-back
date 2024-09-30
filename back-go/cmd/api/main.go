@@ -81,8 +81,9 @@ func main() {
 	r.Use(middleware.CorsMiddleware())
 	r.NoRoute(middleware.UnknownEndpoint)
 
+	router := r.Group("/api")
 	// 3) Configurar rutas de la API / añadimos a la instancia de Gin las rutas de la API
-	shortURLRouteController.SetupRoutes(r)
+	shortURLRouteController.SetupRoutes(router)
 
 	// 5) Iniciar el servidor Gin
 	port := os.Getenv("PORT")
