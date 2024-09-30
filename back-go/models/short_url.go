@@ -16,5 +16,8 @@ type ShortUrl struct {
 	ShortURL    string             `bson:"shortURL" json:"shortURL"`
 	TotalClicks int                `bson:"totalClicks" json:"totalClicks"`
 	CreatedAt   time.Time          `bson:"createdAt" json:"createdAt"`
-	QRCode      string             `bson:"qrCode" json:"qrCode"`
+}
+
+type CreateShortURL struct {
+	URL string `json:"url" binding:"required"`
 }
