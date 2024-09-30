@@ -1,4 +1,3 @@
-import { NextFunction, Response } from 'express';
 import logger from '../utils/logger';
 
 const requestLogger = (
@@ -19,9 +18,9 @@ const unknownEndpoint = (_request: any, response: any) => {
 
 const errorMidHandler = (
   error: { name: string; message: any },
-  _request: Request,
-  response: Response,
-  next: NextFunction
+  _request: any,
+  response: any,
+  next: (arg0: any) => void
 ) => {
   console.log('errorHandler error:', error);
   if (error.name === 'CastError') {
@@ -44,7 +43,6 @@ const errorMidHandler = (
   logger.error(error.message);
 
   next(error);
-  return;
 };
 
 export default {
