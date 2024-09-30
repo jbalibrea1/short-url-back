@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
 const shortUrlSchema = new mongoose.Schema({
   url: String,
   image: String || null,
@@ -33,6 +32,6 @@ shortUrlSchema.set('toJSON', {
   },
 });
 
-const ShortUrl = mongoose.model('ShortUrl', shortUrlSchema);
+const ShortUrlModel = mongoose.model('ShortUrl', shortUrlSchema);
 
-export default ShortUrl;
+export default ShortUrlModel;
