@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import shortUrl from '../services/shortUrl';
 import handleError from '../utils/handleError';
 
-const getAllShortUrls = async (_req: Request, res: Response): Promise<void> => {
+const getAllShortURLs = async (_req: Request, res: Response): Promise<void> => {
   try {
     const allUrls = await shortUrl.getAll();
     res.json(allUrls);
@@ -11,7 +11,7 @@ const getAllShortUrls = async (_req: Request, res: Response): Promise<void> => {
   }
 };
 
-const addShortUrl = async (req: Request, res: Response): Promise<void> => {
+const addShortURL = async (req: Request, res: Response): Promise<void> => {
   try {
     const { url }: { url: String } = req.body;
     const newShortUrlEntry = await shortUrl.create(url);
@@ -21,18 +21,32 @@ const addShortUrl = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const getFullUrl = async (req: Request, res: Response): Promise<void> => {
+const getShortURL = async (req: Request, res: Response): Promise<void> => {
   try {
     const url = req.params.shortUrl;
     const entry = await shortUrl.get(url);
-    res.send(entry);
+    res.json(entry);
+  } catch (error) {
+    handleError(res, 'Failed to get full URL.', error);
+  }
+};
+
+const getRedirect = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const url = req.params.shortUrl;
+    const entry = await shortUrl.get(url);
+    if (!entry.url) {
+      throw new Error('No URL found for the given short URL');
+    }
+    res.redirect(entry.url);
   } catch (error) {
     handleError(res, 'Failed to get full URL.', error);
   }
 };
 
 export default {
-  getAllShortUrls,
-  addShortUrl,
-  getFullUrl,
+  getAllShortURLs,
+  addShortURL,
+  getShortURL,
+  getRedirect,
 };

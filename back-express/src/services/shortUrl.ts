@@ -40,7 +40,6 @@ const get = async (shortUrl: String) => {
   const entry = await ShortUrlModel.findOne({ shortUrl });
 
   if (!entry) {
-    //!!!!!!!!!!!!!!!!!!!!!!!!!
     throw new Error(`Short URL not found for ${shortUrl}`);
   }
 
