@@ -24,4 +24,5 @@ func (suc *ShortUrlRouterController) SetupRoutes(r *gin.RouterGroup) {
 	r.GET("/shorturl", suc.shortUrlController.GetAllShortURLs)
 	r.GET("/shorturl/:shortURL", suc.shortUrlController.GetShortURL)
 	r.POST("/shorturl", suc.shortUrlController.CreateShortURL)
+	r.GET("/redirect/:shortURL", suc.shortUrlController.GetRedirectURL)
 }

@@ -18,6 +18,6 @@ type ShortUrl struct {
 	CreatedAt   time.Time          `bson:"createdAt" json:"createdAt"`
 }
 
-type CreateShortURL struct {
+type OnlyURL struct {
 	URL string `json:"url" binding:"required"`
 }

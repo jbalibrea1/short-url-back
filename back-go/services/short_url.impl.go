@@ -22,7 +22,7 @@ func NewShortUrlService(coll *mongo.Collection, ctx context.Context) ShortUrlSer
 	return &ShortUrlServiceImpl{coll, ctx}
 }
 
-func (s *ShortUrlServiceImpl) GetAllShortURLs() ([]*models.ShortUrl, error) {
+func (s *ShortUrlServiceImpl) GetAll() ([]*models.ShortUrl, error) {
 	// Crear una variable que apunte a un slice de ShortUrl
 	var allShortsURLs []*models.ShortUrl
 
@@ -49,7 +49,7 @@ func (s *ShortUrlServiceImpl) GetAllShortURLs() ([]*models.ShortUrl, error) {
 	return allShortsURLs, nil
 }
 
-func (s *ShortUrlServiceImpl) GetSingleShortURL(shortURL string) (*models.ShortUrl, error) {
+func (s *ShortUrlServiceImpl) GetSingle(shortURL string) (*models.ShortUrl, error) {
 	// 1) Crear variable para almacenar el documento decodificado
 	var result *models.ShortUrl
 
@@ -79,7 +79,7 @@ func (s *ShortUrlServiceImpl) GetSingleShortURL(shortURL string) (*models.ShortU
 	return result, nil
 }
 
-func (s *ShortUrlServiceImpl) CreateShortURL(shortURL *models.CreateShortURL) (*models.ShortUrl, error) {
+func (s *ShortUrlServiceImpl) Create(shortURL *models.OnlyURL) (*models.ShortUrl, error) {
 	//TODO QUIZÁS CAMBIAR EN LA FUNCIÓN
 	// 1) Validar la URL proporcionada y generar un shortID único
 	parsedURL, err := utils.IsValidURL(shortURL.URL)
@@ -116,4 +116,37 @@ func (s *ShortUrlServiceImpl) CreateShortURL(shortURL *models.CreateShortURL) (*
 	result.ID = res.InsertedID.(primitive.ObjectID)
 
 	return result, nil
+}
+
+func (s *ShortUrlServiceImpl) GetRedirect(shortURL string) (*models.OnlyURL, error) {
+	// 1) Crear variable para almacenar el documento decodificado
+	var result *models.ShortUrl
+	var ret *models.OnlyURL
+	// 2) Definir filtro y actualización
+	filter := bson.M{"shortURL": shortURL}             // Filtro para buscar el documento con la shortURL proporcionada
+	update := bson.M{"$inc": bson.M{"totalClicks": 1}} // Actualizar el campo totalClicks por cada clic
+
+	// 3) Definir opciones para la búsqueda y actualización del documento
+	after := options.After
+	upsert := false
+	opt := options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,  // Devolver el documento después de la actualización
+		Upsert:         &upsert, // No crear un nuevo documento si no se encuentra
+	}
+
+	// 4) Buscar, actualizar el documento con la shortURL proporcionada y decodificarlo en la variable result
+	res := s.Collection.FindOneAndUpdate(s.ctx, filter, update, &opt)
+	if res.Err() != nil {
+		if res.Err() == mongo.ErrNoDocuments {
+			return nil, mongo.ErrNoDocuments
+		}
+		return nil, res.Err()
+	}
+
+	// 5) Decodificar el documento res en la variable result
+	res.Decode(&result)
+
+	// 6) Responder con la URL original
+	ret = &models.OnlyURL{URL: result.URL}
+	return ret, nil
 }

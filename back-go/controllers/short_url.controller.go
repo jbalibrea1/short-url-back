@@ -21,7 +21,7 @@ func NewShortUrlController(service services.ShortUrlService) ShortUrlController 
 func (suc *ShortUrlController) GetAllShortURLs(ctx *gin.Context) {
 	// * El servicio esta encapsulado en el controlador
 	// 1) Llamar al servicio para obtener un slice
-	allShortsURLs, err := suc.shortUrlService.GetAllShortURLs()
+	allShortsURLs, err := suc.shortUrlService.GetAll()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Failed to retrieve documents"})
 		log.Println("Failed to retrieve documents:", err)
@@ -35,7 +35,7 @@ func (suc *ShortUrlController) GetAllShortURLs(ctx *gin.Context) {
 // GET /api/shorturl/:shortURL
 func (suc *ShortUrlController) GetShortURL(ctx *gin.Context) {
 	shortUrl := ctx.Param("shortURL")
-	shortURL, err := suc.shortUrlService.GetSingleShortURL(shortUrl)
+	shortURL, err := suc.shortUrlService.GetSingle(shortUrl)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Failed to retrieve short URL", "message": "Short URL not found " + shortUrl})
 		return
@@ -46,7 +46,7 @@ func (suc *ShortUrlController) GetShortURL(ctx *gin.Context) {
 // POST /api/shorturl -d '{"url": "https://www.google.com"}'
 func (suc *ShortUrlController) CreateShortURL(ctx *gin.Context) {
 	// Iniciamos la estructura para almacenar la URL
-	var bodyURL *models.CreateShortURL
+	var bodyURL *models.OnlyURL
 
 	// Decodificamos el JSON en la estructura bodyURL
 	if err := ctx.ShouldBindJSON(&bodyURL); err != nil {
@@ -55,7 +55,7 @@ func (suc *ShortUrlController) CreateShortURL(ctx *gin.Context) {
 	}
 
 	// Llamamos al servicio para crear la short URL
-	shortURL, err := suc.shortUrlService.CreateShortURL(bodyURL)
+	shortURL, err := suc.shortUrlService.Create(bodyURL)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"error": "Failed to retrieve short URL", "message": err.Error()})
 		return
@@ -63,4 +63,15 @@ func (suc *ShortUrlController) CreateShortURL(ctx *gin.Context) {
 
 	// Respondemos con la short URL creada
 	ctx.JSON(http.StatusOK, shortURL)
+}
+
+// GET /api/redirect/:shortURL
+func (suc *ShortUrlController) GetRedirectURL(ctx *gin.Context) {
+	shortUrl := ctx.Param("shortURL")
+	originalURL, err := suc.shortUrlService.GetRedirect(shortUrl)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Failed to retrieve short URL", "message": "Short URL not found " + shortUrl})
+		return
+	}
+	ctx.Redirect(http.StatusMovedPermanently, originalURL.URL)
 }
