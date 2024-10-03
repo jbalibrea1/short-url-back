@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { readdirSync } from 'fs';
 
 const PATH_ROUTER = `${__dirname}`;
+const prefix = '/api';
 const router = Router();
 
 /**
@@ -9,17 +10,21 @@ const router = Router();
  * @returns {string|undefined} - The file name without extension
  */
 const cleanFileName = (fileName: string): string | undefined => {
-  const file = fileName.split('.').shift();
-  return file;
+  return fileName.split('.').shift();
 };
 
 readdirSync(PATH_ROUTER).filter((fileName) => {
   const cleanName = cleanFileName(fileName);
   if (cleanName !== 'index') {
-    import(`./${cleanName}`).then((moduleRouter) => {
-      router.use(`/api/${cleanName}`, moduleRouter.router);
-    });
-    console.info(`Router ------> /${cleanName} loaded`);
+    const endpoint = `${prefix}/${cleanName}`;
+    import(`./${cleanName}`)
+      .then((moduleRouter: { router: Router }) => {
+        router.use(`${endpoint}`, moduleRouter.router);
+        console.info(`Router ------> ${endpoint} loaded`);
+      })
+      .catch((error) => {
+        console.error(`Failed to load router /${cleanName}`, error);
+      });
   }
 });
 

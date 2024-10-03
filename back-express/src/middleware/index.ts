@@ -1,8 +1,9 @@
+import { Response } from 'express';
 import logger from '../utils/logger';
 
 const requestLogger = (
-  request: { method: any; path: any; body: any },
-  _response: any,
+  request: { method: unknown; path: unknown; body: unknown },
+  _response: Response,
   next: () => void
 ) => {
   logger.info('Method:', request.method);
@@ -12,15 +13,15 @@ const requestLogger = (
   next();
 };
 
-const unknownEndpoint = (_request: any, response: any) => {
-  response.status(404).send({ error: 'unknown endpoint' });
+const unknownEndpoint = (_: unknown, res: Response) => {
+  res.status(404).send({ error: 'unknown endpoint' });
 };
 
 const errorMidHandler = (
-  error: { name: string; message: any },
-  _request: any,
-  response: any,
-  next: (arg0: any) => void
+  error: { name: string; message: string },
+  _request: unknown,
+  response: Response,
+  next: (arg0: unknown) => void
 ) => {
   console.log('errorHandler error:', error);
   if (error.name === 'CastError') {
@@ -43,6 +44,7 @@ const errorMidHandler = (
   logger.error(error.message);
 
   next(error);
+  return;
 };
 
 export default {

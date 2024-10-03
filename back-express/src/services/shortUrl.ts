@@ -1,19 +1,20 @@
+import { NewShortUrlEntry, ShortUrlEntry } from '../interfaces/shortUrlTypes';
 import ShortUrlModel from '../models/shortUrlModel';
-import getMetadata from '../utils/getMetadata';
+import addMetadata from '../utils/metadata';
 import generateUniqueShortUrl from '../utils/randomUrl';
 import toNewShortUrlEntry from '../utils/shortEntry';
-import truncateString from '../utils/truncateString';
 
 const getAll = async () => {
-  const allUrls = await ShortUrlModel.find({});
+  const allUrls: ShortUrlEntry[] = await ShortUrlModel.find({});
   return allUrls;
 };
 
-const create = async (url: String) => {
-  const newShortUrlEntry = toNewShortUrlEntry(url);
+//TODO add type for and destructuring for url
+const create = async (url: string) => {
+  let newShortUrlEntry: NewShortUrlEntry = toNewShortUrlEntry({ url });
 
-  //get metadata from  url
-  const metadata = await getMetadata(newShortUrlEntry.url);
+  // add metadata to the entry
+  newShortUrlEntry = await addMetadata(newShortUrlEntry);
 
   // generate a unique short url while not clashing with existing ones
   let shortUrl = generateUniqueShortUrl();
@@ -21,22 +22,18 @@ const create = async (url: String) => {
     shortUrl = generateUniqueShortUrl();
   }
 
-  if (metadata.title) newShortUrlEntry.title = metadata.title;
-  if (metadata.logo) newShortUrlEntry.logo = metadata.logo;
-  if (metadata.description)
-    newShortUrlEntry.description = truncateString(metadata.description, 50);
-
   // create a new entry
   const newEntry = new ShortUrlModel({
     ...newShortUrlEntry,
     shortUrl,
   });
+
   const savedEntry = await newEntry.save();
 
   return savedEntry;
 };
 
-const get = async (shortUrl: String) => {
+const get = async (shortUrl: string) => {
   const entry = await ShortUrlModel.findOne({ shortUrl });
 
   if (!entry) {

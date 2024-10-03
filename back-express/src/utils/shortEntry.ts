@@ -12,16 +12,16 @@ const parseUrl = (url: unknown): string => {
   return url;
 };
 
-const toNewShortUrlEntry = (object: unknown): NewShortUrlEntry => {
-  if (!object || typeof object !== 'object') {
+const toNewShortUrlEntry = (urlObj: NewShortUrlEntry): NewShortUrlEntry => {
+  if (!urlObj || typeof urlObj !== 'object') {
     throw new Error('Incorrect or missing data');
   }
 
-  if ('url' in object) {
-    const newEntry: NewShortUrlEntry = {
-      url: parseUrl(object.url),
+  if ('url' in urlObj) {
+    return {
+      ...urlObj,
+      url: parseUrl(urlObj.url),
     };
-    return newEntry;
   }
 
   throw new Error('Incorrect data: a field missing');

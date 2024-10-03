@@ -3,6 +3,8 @@ import metascraperDescription from 'metascraper-description';
 import metascraperLogoFavicon from 'metascraper-logo-favicon';
 import metascraperTitle from 'metascraper-title';
 import metascraperUrl from 'metascraper-url';
+import { NewShortUrlEntry } from '../interfaces/shortUrlTypes';
+import truncateString from './truncateString';
 
 const scraper = metascraper([
   // metascraperImage(),
@@ -23,4 +25,23 @@ async function getMetadata(url: string) {
   return metadata;
 }
 
-export default getMetadata;
+const addMetadata = async (
+  entry: NewShortUrlEntry
+): Promise<NewShortUrlEntry> => {
+  try {
+    const metadata = await getMetadata(entry.url);
+    return {
+      ...entry,
+      title: metadata.title ?? null,
+      logo: metadata.logo ?? null,
+      description: metadata.description
+        ? truncateString(metadata.description, 50)
+        : null,
+    };
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    return entry;
+  }
+};
+
+export default addMetadata;

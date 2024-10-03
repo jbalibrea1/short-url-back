@@ -12,7 +12,7 @@ const connectDB = () => {
 
   mongoose
     .connect(url)
-    .then((_result: any) => {
+    .then((_result) => {
       console.log('connected to MongoDB');
     })
     .catch((error: Error) => {

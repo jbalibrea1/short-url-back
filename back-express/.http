@@ -1,0 +1,17 @@
+
+GET http://localhost:8080/api/shorturl
+Content-Type: application/json
+
+###
+POST http://localhost:8080/api/shorturl
+Content-Type: application/json
+
+{
+  "url": "google.es"
+}
+
+###
+GET http://localhost:8080/api/shorturl/LMoqY
+Content-Type: application/json
+
+
